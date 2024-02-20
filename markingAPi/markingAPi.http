@@ -1,0 +1,11 @@
+@markingAPi_HostAddress = http://localhost:5154
+
+GET {{markingAPi_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{markingAPi_HostAddress}}/todos/1
+Accept: application/json
+
+###
