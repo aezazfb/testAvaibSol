@@ -1,8 +1,10 @@
 // Form validation
 $(document).ready(function () {
-    $('.standardButton').click(function () {
+    $('#submitData').click(function () {
         saveData();
     });
+    populateGrid();
+    $('#feePaidNo').prop("checked", true);
 });
 //document.getElementById('studentForm').addEventListener('submit', function(event) {
 //    event.preventDefault();
@@ -48,41 +50,82 @@ function saveData() {
         passed: (marks ?? 0) >= 60
     }
     
-    AjaxCall("https://localhost:44384/marks/", JSON.stringify(studentDataObj), "POST", onSuccessMarksPost, null, null, null, null, null);
-    function onSuccessMarksPost(data) {
+    AjaxCall("https://localhost:44384/marks/", JSON.stringify(studentDataObj), "POST", null, null, null, onSuccessMarksPost, null, null);
+    function onSuccessMarksPost() {
+        
         alert("Record added successfully!");
+        populateGrid();
+        $('#fullName').val("");
+        $('#marksObtained').val("");
+        $('#fessPaidYes').prop("checked", false);
+        $('#feePaidNo').prop("checked", true);
     }
 }
 
 // Function to populate grid
-function populateGrid(data) {
-    var grid = document.getElementById('studentGrid');
-    grid.innerHTML = ''; // Clear existing content
+function populateGrid() {
 
-    data.forEach(function(student) {
-        var row = document.createElement('div');
-        row.innerHTML = `
-            <input type="checkbox">
-            <span>${student.fullName}</span>
-            <span>${student.marks}</span>
-            <span>${student.feePaid}</span>
-            <span>${student.status}</span>
-            <span>
-                <a href="#" onclick="editStudent(${student.id})">Edit</a>
-            </span>
-        `;
-        if (student.status === 'Pass') {
-            row.style.color = 'green';
-        } else {
-            row.style.color = 'red';
-        }
-        grid.appendChild(row);
-    });
+    
+    var grid = document.getElementById('studentsGrid');
+    grid.innerHTML = `<tr>
+				<td style="width: 20px;" class="heading-cell">&nbsp;</td>
+				<td class="heading-cell">Full Name</td>
+				<td class="heading-cell">Marks</td>
+				<td class="heading-cell">Fee Paid</td>
+				<td class="heading-cell">Pass/Fail</td>
+				<td class="heading-cell">Edit</td>
+			</tr>`; // Clear existing content
+
+    AjaxCall("https://localhost:44384/marks/", null, "GET", onSuccessGet, null, null, null, null, null);
+    function onSuccessGet(dataOfStudents) {
+
+        //alert(data);
+        $.each(dataOfStudents, function () {
+            var row = document.createElement('tr');
+            row.innerHTML = `
+            <td class="grid-cell">${this.id}</td>
+            <td class="grid-cell">${this.name}</td>
+            <td class="grid-cell">${this.marks}</td>
+            <td class="grid-cell">${this.feePaid ? "Paid" : "Unpaid"}</td>`
+                +
+            `
+            <td class="grid-cell" style="color: ${this.pass ? "green" : "red"};">${this.pass ? "Pass" : "Not"}</td>`
+                +
+            `
+            <td class="grid-cell">
+                <a href="#" onclick="editStudent(${this.id})">Edit</a>
+            </td>
+        `
+            var x = this.id;
+                ;
+            //if (this.pass === true) {
+            //    row.style.color = 'green';
+            //} else {
+            //    row.style.color = 'red';
+            //}
+            grid.appendChild(row);
+        });
+
+    }
+    
+
+    
 }
 
 // Function to edit student
 function editStudent(id) {
-    // Implement logic to populate form with student data for editing
+    AjaxCall("https://localhost:44384/marks/" + id, null, "GET", onSuccessGetById, null, null, null, null, null);
+    function onSuccessGetById(student) {
+        $('#fullName').val(student.name);
+        $('#marksObtained').val(student.marks);
+        if (student.feePaid == true) {
+            $('#fessPaidYes').prop("checked", true);
+            $('#fessPaidNo').prop("checked", false);
+        } else {
+            $('#fessPaidYes').prop("checked", false);
+            $('#fessPaidNo').prop("checked", true);
+        }
+    }
 }
 function AjaxCall(url, dataToService, methodType, successCallBack, failureCallBack, errorCallBack, completeCallBack, loaderShowCalBack, loaderHideCallBack ) {
     if (loaderShowCalBack !== null && typeof loaderShowCalBack !== 'undefined') {

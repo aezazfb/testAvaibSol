@@ -19,10 +19,10 @@ namespace testAvaib.Controllers
 
 		// GET: api/<MarksController>
 		[HttpGet]
-		public List<StdMarks> Get()
+		public IActionResult Get()
 		{
 			var stds = dbContext.StdMarks.ToList();
-			return stds;
+			return Ok(stds);
 		}
 
 		// GET api/<MarksController>/5

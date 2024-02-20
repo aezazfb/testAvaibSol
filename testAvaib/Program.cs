@@ -9,7 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddDbContext<MarksDbContext>(opp=>opp.UseSqlServer("Data Source=FB-PC;Initial Catalog=MarksDb;Integrated Security=True;Trust Server Certificate=True"), ServiceLifetime.Scoped);
+builder.Services.AddDbContext<MarksDbContext>(opp=>opp.UseSqlServer("Data Source=.;Initial Catalog=MarksDb;Integrated Security=True;Trust Server Certificate=True"), ServiceLifetime.Scoped);
 
 var app = builder.Build();
 
