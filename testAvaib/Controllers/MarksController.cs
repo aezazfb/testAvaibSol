@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using testAvaib.Models;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,18 +19,18 @@ namespace testAvaib.Controllers
 
 		// GET: api/<MarksController>
 		[HttpGet]
-		public string Get()
+		public List<StdMarks> Get()
 		{
-			var name = dbContext.StdMarks.Where(st => st.Name == "ax").FirstOrDefault().Name ?? "Nhi Mila";
-			return name;
+			var stds = dbContext.StdMarks.ToList();
+			return stds;
 		}
 
 		// GET api/<MarksController>/5
 		[HttpGet("{id}")]
-		public string Get(int id)
+		public IActionResult Get(int id)
 		{
-			var name = dbContext.StdMarks.Where(st => st.Name == "ax").FirstOrDefault().Name ?? "Nhi Mila";
-			return name;
+			var name = dbContext.StdMarks.Where(st => st.Id == id).FirstOrDefault();
+			return Ok(name);
 			//return "value";
 		}
 
@@ -49,14 +50,30 @@ namespace testAvaib.Controllers
 
 		// PUT api/<MarksController>/5
 		[HttpPut("{id}")]
-		public void Put(int id, [FromBody] string value)
+		public IActionResult Put(int id, [FromBody] StdMarks value)
 		{
+			var std = dbContext.StdMarks.Where(i => i.Id == id).FirstOrDefault();
+			if (std is not null)
+			{
+				dbContext.Entry(std).State = EntityState.Modified;
+				dbContext.SaveChanges();
+				return Ok(true);
+			}
+			return BadRequest(false);
 		}
 
 		// DELETE api/<MarksController>/5
 		[HttpDelete("{id}")]
-		public void Delete(int id)
+		public IActionResult Delete(int id)
 		{
+			var std = dbContext.StdMarks.Where(i => i.Id == id).FirstOrDefault();
+			if (std is not null)
+			{
+				dbContext.Remove(std);
+				dbContext.SaveChanges();
+				return Ok(true);
+			}
+			return BadRequest(false);
 		}
 	}
 }
