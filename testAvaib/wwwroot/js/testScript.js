@@ -3,31 +3,20 @@ $(document).ready(function () {
     $('#submitData').click(function () {
         saveData();
     });
+    $('#deleteDbRowData').click(function () {
+        var stdObj = $('.gridSelects');
+        $.each(stdObj, function () {
+            if ($(this).prop("checked") == true) {
+                //alert($(this).parent().attr("std-id"));
+                deleteRecord($(this).parent().attr("std-id"));
+            }
+        });
+        
+    });
     populateGrid();
     $('#feePaidNo').prop("checked", true);
 });
-//document.getElementById('studentForm').addEventListener('submit', function(event) {
-//    event.preventDefault();
-//    var fullName = document.getElementById('fullName').value;
-//    var marks = document.getElementById('marks').value;
-//    var feePaid = document.querySelector('input[name="feePaid"]:checked');
-    
-//    if (!fullName || !marks || !feePaid) {
-//        alert('Please fill in all required fields.');
-//        return;
-//    }
 
-//    if (isNaN(marks) || marks < 1 || marks > 100) {
-//        alert('Marks must be a numeric value between 1 and 100.');
-//        return;
-//    }
-
-//    // Proceed with form submission if all validations pass
-//    // Call function to save data to the database
-//    saveData(fullName, marks, feePaid.value);
-//});
-
-// Function to save data to the database
 function saveData() {
     var fullName = $('#fullName').val();
     var marks = $('#marksObtained').val();
@@ -83,13 +72,14 @@ function populateGrid() {
         $.each(dataOfStudents, function () {
             var row = document.createElement('tr');
             row.innerHTML = `
-            <td class="grid-cell">${this.id}</td>
+            <td class="grid-cell" std-id="${this.id}"><input type="radio" id="gridSelect" name="radio" class=" gridSelects" /></td>
             <td class="grid-cell">${this.name}</td>
             <td class="grid-cell">${this.marks}</td>
             <td class="grid-cell">${this.feePaid ? "Paid" : "Unpaid"}</td>`
                 +
-            `
-            <td class="grid-cell" style="color: ${this.pass ? "green" : "red"};">${this.pass ? "Pass" : "Not"}</td>`
+                (this.feePaid == true ? `<td class="grid-cell" style="color: ${this.pass ? "green" : "red"};">${this.pass ? "Pass" : "Not"}</td>`
+                : 
+                `<td class="grid-cell">Pay fees to check result</td>`)
                 +
             `
             <td class="grid-cell">
@@ -125,6 +115,14 @@ function editStudent(id) {
             $('#fessPaidYes').prop("checked", false);
             $('#fessPaidNo').prop("checked", true);
         }
+    }
+}
+
+function deleteRecord(id) {
+    AjaxCall("https://localhost:44384/marks/" + id, null, "DELETE", onSuccessDeletion, null, null, null, null, null);
+    function onSuccessDeletion(student) {
+        populateGrid();
+        alert("Record Deleted Successfully!");
     }
 }
 function AjaxCall(url, dataToService, methodType, successCallBack, failureCallBack, errorCallBack, completeCallBack, loaderShowCalBack, loaderHideCallBack ) {
